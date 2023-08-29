@@ -1,0 +1,8 @@
+﻿streamlit
+pandas
+oauth2client
+google-api-python-client
+pyexcelerate
+google_auth_oauthlib
+openpyxl
+streamlit_antd_components

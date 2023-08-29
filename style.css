@@ -1,0 +1,131 @@
+body {
+    font-family: Monaco, monospace;
+}
+
+section[data-testid='stSidebar'] {
+    flex-shrink: unset !important;    
+}
+
+.minha-classe{
+    color: #33b5c6;
+    margin-top: -10px;
+    opacity: 0.9;
+}
+
+.minha-classe a {
+    text-decoration: none; /* Remove o sublinhado padrão */
+    color: #33b5c6; /* Cor padrão */
+    transition: color 0.3s; /* Adiciona uma transição suave para a mudança de cor */
+}
+
+.minha-classe a:hover {
+    color: white; /* Cor quando o mouse passa por cima (pode ser alterada para a cor desejada) */
+}
+
+.social-media-container {
+    text-align: center;
+}
+
+.social-media-container a {
+    display: inline-block;
+    margin: 0 2px;
+    border-radius: 50%; /* Torna os ícones redondos */
+    transition: background-color 0.3s ease;
+}
+
+.social-media-container a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Altera a cor de fundo ao passar o mouse */
+}
+
+.meu-texto { max-width: 100%; }
+
+.meu-cabecalho {
+    text-align: center; /* Centralizar o texto */
+    color: #ff79c6;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+.its-me{
+    text-align: center;
+    color: #282a36;
+}
+
+.css-15zrgzn {display: none}
+.css-eczf16 {display: none}
+.css-jn99sy {display: none}
+.css-l9grht.e1nzilvr2 {display: none}
+.css-myvzrx.e1vs0wn31 {display: none}
+
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/*@media(hover:hover) and (min-width: 600px) and (max-width: 769px){
+
+    header[data-testid="stHeader"] {
+        display:none;
+    }
+
+    section[data-testid='stSidebar'] {
+        height: 100%;
+        min-width:95px !important;
+        width: 95px !important;
+        margin-left: 305px;
+        position: relative;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #44475a;
+        overflow-x: hidden;
+        transition: 0.5s ease;
+        padding-top: 60px;
+        white-space: nowrap;
+    }
+
+    section[data-testid='stSidebar']:hover{
+        min-width: 330px !important;
+        }
+
+    button[kind="header"] {
+        display: none;
+    }
+
+    div[data-testid="collapsedControl"]{
+        display: none;
+    }
+
+}
+
+@media(hover: hover) and (min-width: 769px){
+
+    header[data-testid="stHeader"] {
+        display:none;
+    }
+
+    section[data-testid='stSidebar'] {
+        height: 100%;
+        min-width:95px !important;
+        width: 95px !important;
+        transform:translateX(0px);
+        position: relative;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #44475a;
+        overflow-x: hidden;
+        transition: 0.5s ease;
+        padding-top: 60px;
+        white-space: nowrap;
+    }
+
+    section[data-testid='stSidebar']:hover{
+        min-width: 330px !important;
+        }
+
+    button[kind="header"] {
+        display: none;
+    }
+
+    div[data-testid="collapsedControl"]{
+        display: none;
+    }
+}
