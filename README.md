@@ -30,8 +30,12 @@ If you want to retrieve more data than 300,000 rows, simply change one line of c
 ```
 row_limit = 300000
 ```
+### If you want to get in touch or be the first to know about my development ideas: ⤵️
 
 <p align="left">
+  <a href="https://viniciusstanula.com/en/" target="_blank" alt="Gmail">
+  <img src="https://img.shields.io/badge/Website-006E93?style=flat-square&logo=wordpress&logoColor=white&link=LINK-DO-SEU-GMAIL" /></a>
+  
   <a href="mailto:vinicius.stanula.seo@gmail.com" target="_blank" alt="Gmail">
   <img src="https://img.shields.io/badge/-Gmail-FF0000?style=flat-square&labelColor=FF0000&logo=gmail&logoColor=white&link=LINK-DO-SEU-GMAIL" /></a>
 
