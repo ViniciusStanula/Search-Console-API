@@ -26,9 +26,9 @@ data_inicial = date - relativedelta(months=16)
 data_padrao = date - relativedelta(months=1)
 
 # Convert secrets from the TOML file to strings
-clientSecret = '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'
-clientId = '87332147060-pgsd1qf102l8pqrkrje5mfoodof3e4tv.apps.googleusercontent.com'
-redirectUri = 'http://localhost:8502/'  # Sua URL original
+clientSecret = st.secrets["clientSecret"]
+clientId = st.secrets["clientId"]
+redirectUri = 'https://search-console-api.streamlit.app'
 
     
 href = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={}&redirect_uri={}&scope=https://www.googleapis.com/auth/webmasters.readonly&access_type=offline&prompt=consent".format(clientId, redirectUri)
