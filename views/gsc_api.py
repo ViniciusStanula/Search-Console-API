@@ -423,7 +423,7 @@ def criar_grafico_echarts(df_grouped):
         "yAxis": {"type": "value", "name": ""},
         "grid": {
             "right": 20,
-            "left": 50,
+            "left": 60,
             "top": 45,
             "bottom": 50,
         },
