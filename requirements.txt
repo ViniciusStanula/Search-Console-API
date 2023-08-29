@@ -6,3 +6,4 @@ pyexcelerate
 google_auth_oauthlib
 openpyxl
 streamlit_antd_components
+streamlit_raw_echarts
