@@ -16,16 +16,22 @@ This application is fully functional but still a work in progress as I plan to i
 * Simply go to the [web application](https://search-console-api.streamlit.app/).
 * Click on "Log in to Google Search Console."
 * Insert your credentials.
-* Click on "Grant API Access."
+* Click on "Grant API Access".
 * Choose your metrics and click on "Get Data ✨".
 
 Or if you prefer, clone this repository and run it locally on your machine.
 
-## 🔧 How to Change row Limitation
+## 🔧 How to run it locally and Change row Limitation
 
 This application has a limit of 300,000 rows of data, which is significantly more than the 25,000 rows we can obtain per request using the GSC API. What this script does is run several requests, each fetching 25,000 rows, until it reaches the 300,000 limit. If your website doesn't have all the data (which is often the case), the request simply ends sooner.
 
-If you want to retrieve more data than 300,000 rows, simply change one line of code inside the "def get_data" function.
+If you want to retrieve more than 300,000 rows of data, follow these steps:
+
+* Change three variables: clientSecret, clientId, and redirectUri.
+* For clientSecret and clientId, you'll need to create new credentials for the Google Search Console API on Google Cloud. Ensure that you create them as OAuth client IDs for a Web Application.
+* redirectUri is the URL where your app will redirect after the user logs in. If you're running the app locally, it should be something like http://localhost:8501/.
+  
+After completing these steps, make one more change in the code.
 
 ```
 row_limit = 300000
