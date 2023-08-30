@@ -1,8 +1,6 @@
 # GOOGLE SEARCH CONSOLE API
 
-<a href="https://search-console-api.streamlit.app/" alt="Streamlit">
-  <img src="https://img.shields.io/badge/-Streamlit-FF4B4B?style=flat-square&labelColor=FF4B4B&logo=streamlit&logoColor=white&link=[LINK-DO-SEU-STREAMLIT]"/>
-</a>
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://search-console-api.streamlit.app/)
 
 ![GSC-API](https://github.com/ViniciusStanula/Search-Console-API/assets/48488978/77cb04de-fb46-4350-8d45-524decd2939f)
 > A Streamlit web application that connects to the Google Search Console API and presents more than 200,000 rows of data in charts and tables.
