@@ -6,7 +6,7 @@ from PIL import Image
 favicon = Image.open("./assets/favicon.png")
 
 st.set_page_config(
-    page_title="SEO Tools - Vinicius Stanula",
+    page_title="Google Search Console Python API - Vinicius Stanula",
     page_icon=favicon,
     layout="wide",
     initial_sidebar_state='collapsed',
