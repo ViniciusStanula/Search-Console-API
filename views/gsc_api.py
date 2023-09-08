@@ -622,7 +622,7 @@ def createPage():
         )
                 
         # Botão para buscar os dados
-        button = sac.buttons(['Get Data ✨'], label=None, index=None, format_func='title', align='start', position='top', size='default', direction='horizontal', shape='default', compact=False, return_index=False)
+        button = st.button('Buscar Dados ✨', on_click=click_button)
         
     with c2:
         tab1, tab2 = st.tabs(["📅 Date", "📃 Table"])
