@@ -679,7 +679,8 @@ def createPage():
                     excel_date_filename = f'API-GSC-{st.session_state.domain}.xlsx'
                     st.download_button(label='📥 Download Excel',
                                     data=df_xlsx,
-                                    file_name=excel_date_filename)
+                                    file_name=excel_date_filename,
+                                      key='download-chart')
                 except AttributeError:
                     pass
                                 
@@ -730,7 +731,8 @@ def createPage():
                         excel_filename = f'API-GSC-{st.session_state.domain}.xlsx'
                         st.download_button(label='📥 Download Excel',
                                         data=df_xlsx,
-                                        file_name=excel_filename)
+                                        file_name=excel_filename,
+                                          key='botao_download_table')
                 except TypeError as e:
                         if "NoneType" in str(e):
                             pass
