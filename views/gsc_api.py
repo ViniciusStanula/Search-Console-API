@@ -27,9 +27,9 @@ DATE_START = today - relativedelta(months=16)
 DATE_DEFAULT = today - relativedelta(months=1)
 
 # Convert secrets from the TOML file to strings
-clientSecret = st.secrets["clientSecret"]
-clientId = st.secrets["clientId"]
-redirectUri = 'https://search-console-api.streamlit.app'
+CLIENT_ID = st.secrets["clientId"]
+CLIENT_SECRET = st.secrets["clientSecret"]
+REDIRECT_URI = 'https://search-console-api.streamlit.app'
 
 SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
