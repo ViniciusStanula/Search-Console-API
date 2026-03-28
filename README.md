@@ -3,54 +3,48 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://search-console-api.streamlit.app/)
 
 ![GSC-API](https://github.com/ViniciusStanula/Search-Console-API/assets/48488978/77cb04de-fb46-4350-8d45-524decd2939f)
-> A Streamlit web application that connects to the Google Search Console API and presents more than 200,000 rows of data in charts and tables.
+
+> A Streamlit web application that connects to the Google Search Console API and presents over 200,000 rows of data in charts and tables.
+
+## 📋 Recent Changes
+
+- **Replaced ECharts with Plotly** — Simplified charting with a lighter, more maintainable Plotly implementation.
+- **Removed deprecated Streamlit values** — Updated deprecated API calls to align with current Streamlit versions.
+- **Added daily breakdown filter** — New toggle to display table data broken down by individual days within the selected date range.
+- **Pinned dependency versions** — The `requirements.txt` now specifies exact versions for all libraries to ensure reproducible builds.
+
+## ☕ How to Use
+
+1. Go to the [web application](https://search-console-api.streamlit.app/).
+2. Click **"Log in to Google Search Console"** and enter your credentials.
+3. Click **"Grant API Access"**.
+4. Choose your metrics and click **"Fetch Data ✨"**.
+
+Alternatively, clone this repository and run it locally.
+
+## 🔧 Running Locally & Changing the Row Limit
+
+The app fetches up to **300,000 rows** by batching multiple 25,000-row requests to the GSC API. If your site has fewer rows, the process simply finishes earlier.
+
+To increase the limit or use your own credentials:
+
+1. Replace `CLIENT_SECRET`, `CLIENT_ID`, and `REDIRECT_URI` with your own values.
+   - Create OAuth **Web Application** credentials for the Search Console API in [Google Cloud Console](https://console.cloud.google.com/).
+   - Set `REDIRECT_URI` to your app's URL (e.g., `http://localhost:8501/` for local development).
+2. Update the row limit in the code:
+
+```python
+ROW_LIMIT = 300_000  # change to your desired value
+```
 
 ### Work in Progress
 
-This application is fully functional but still a work in progress as I plan to insert new charts and conduct further analysis. I would appreciate any feedback on this application.
+The app is fully functional but still evolving — new charts and deeper analysis are planned. Feedback is welcome!
 
-## ☕ How to Use it
-
-* Simply go to the [web application](https://search-console-api.streamlit.app/).
-* Click on "Log in to Google Search Console."
-* Insert your credentials.
-* Click on "Grant API Access".
-* Choose your metrics and click on "Get Data ✨".
-
-Or if you prefer, clone this repository and run it locally on your machine.
-
-## 🔧 How to run it locally and Change row Limitation
-
-This application has a limit of 300,000 rows of data, which is significantly more than the 25,000 rows we can obtain per request using the GSC API. What this script does is run several requests, each fetching 25,000 rows, until it reaches the 300,000 limit. If your website doesn't have all the data (which is often the case), the request simply ends sooner.
-
-If you want to retrieve more than 300,000 rows of data, follow these steps:
-
-* Change three variables: clientSecret, clientId, and redirectUri.
-* For clientSecret and clientId, you'll need to create new credentials for the Google Search Console API on Google Cloud. Ensure that you create them as OAuth client IDs for a Web Application.
-* redirectUri is the URL where your app will redirect after the user logs in. If you're running the app locally, it should be something like http://localhost:8501/.
-  
-After completing these steps, make one more change in the code.
-
-```
-row_limit = 300000
-```
-### If you want to get in touch or be the first to know about my development ideas: ⤵️
+### Get in Touch
 
 <p align="left">
-  <a href="https://viniciusstanula.com/en/" target="_blank" alt="Gmail">
-  <img src="https://img.shields.io/badge/Website-006E93?style=flat-square&logo=wordpress&logoColor=white&link=LINK-DO-SEU-GMAIL" /></a>
-  
-  <a href="mailto:vinicius.stanula.seo@gmail.com" target="_blank" alt="Gmail">
-  <img src="https://img.shields.io/badge/-Gmail-FF0000?style=flat-square&labelColor=FF0000&logo=gmail&logoColor=white&link=LINK-DO-SEU-GMAIL" /></a>
-
   <a href="https://www.linkedin.com/in/vinicius-stanula/" target="_blank" alt="LinkedIn">
-  <img src="https://img.shields.io/badge/-Linkedin-0e76a8?style=flat-square&logo=Linkedin&logoColor=white&link=LINK-DO-SEU-LINKEDIN" /></a>
-
-  <a href="https://www.instagram.com/viniciusstanula/" target="_blank" alt="Instagram">
-  <img src="https://img.shields.io/badge/-Instagram-DF0174?style=flat-square&labelColor=DF0174&logo=instagram&logoColor=white&link=LINK-DO-SEU-INSTAGRAM"/></a>
-
-  <a href="https://www.buymeacoffee.com/viniciusstanula" target="_blank" alt="Buy Me a Coffee">
-    <img src="https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-FF813F?style=flat-square&labelColor=FF813F&logo=buy-me-a-coffee&logoColor=white" />
+    <img src="https://img.shields.io/badge/-Linkedin-0e76a8?style=flat-square&logo=Linkedin&logoColor=white&link=LINK-DO-SEU-LINKEDIN" />
   </a>
-  
 </p>

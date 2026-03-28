@@ -29,7 +29,6 @@ data_padrao = date - relativedelta(months=1)
 clientSecret = st.secrets["clientSecret"]
 clientId = st.secrets["clientId"]
 redirectUri = 'https://search-console-api.streamlit.app'
-
     
 href = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={}&redirect_uri={}&scope=https://www.googleapis.com/auth/webmasters.readonly&access_type=offline&prompt=consent".format(clientId, redirectUri)
 
@@ -49,12 +48,14 @@ flow = Flow.from_client_config(
     redirect_uri=redirectUri,
 )
 
+flow.code_verifier = None
+
 auth_url, _ = flow.authorization_url(prompt="consent")
     
 def button_callback():
     try:
         st.session_state.my_token_received = True
-        code = st.experimental_get_query_params()["code"][0]
+        code = st.query_params["code"]
         st.session_state.my_token_input = code
     except KeyError or ValueError:
         st.error("⚠️ The parameter 'code' was not found in the URL. Please log in.")
@@ -405,7 +406,7 @@ def get_data_date(property_url, startDate, endDate, url_filter=None, url_operato
             
         return df_date
 
-@st.cache_data(experimental_allow_widgets=True, show_spinner=False)
+@st.cache_data(show_spinner=False)
 def criar_grafico_echarts(df_grouped):
     # Formate a coluna 'CTR' do DataFrame
     df_grouped['CTR'] = df_grouped['CTR'].apply(lambda ctr: f"{ctr * 100:.2f}")
@@ -672,15 +673,18 @@ def createPage():
                     
                     with st.container():
                         # Plota o gráfico com as métricas agrupadas por data
-                        criar_grafico_echarts(df_grouped)
+                        #criar_grafico_echarts(df_grouped)
+                        # Botão para download dos dados em formato Excel
+                        gerarExcel = st.checkbox('Generate Excel', key='date')
+                        if gerarExcel:
+                            # Botão para download dos dados em formato Excel
+                            df_date_xlsx = to_excel(df_grouped)
+                            excel_filename = f'API-GSC-{st.session_state.domain}.xlsx'
+                            st.download_button(label='📥 Download Excel',
+                                            data=df_date_xlsx,
+                                            file_name=excel_filename,
+                                            key='botao_download_table')
                     
-                    # Botão para download dos dados em formato Excel
-                    df_xlsx = to_excel(novo_df)
-                    excel_date_filename = f'API-GSC-{st.session_state.domain}.xlsx'
-                    st.download_button(label='📥 Download Excel',
-                                    data=df_xlsx,
-                                    file_name=excel_date_filename,
-                                      key='download-chart')
                 except AttributeError:
                     pass
                                 
