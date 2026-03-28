@@ -26,9 +26,8 @@ DATE_END = today - relativedelta(days=2)
 DATE_START = today - relativedelta(months=16)
 DATE_DEFAULT = today - relativedelta(months=1)
 
-# Convert secrets from the TOML file to strings
-CLIENT_ID = st.secrets["clientId"]
 CLIENT_SECRET = st.secrets["clientSecret"]
+CLIENT_ID = st.secrets["clientId"]
 REDIRECT_URI = 'https://search-console-api.streamlit.app'
 
 SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
@@ -615,4 +614,3 @@ def createPage():
                         raise
 
     return True
-    
