@@ -1,50 +1,57 @@
-# GOOGLE SEARCH CONSOLE API
+# Google Search Console API
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://search-console-api.streamlit.app/)
 
 ![GSC-API](https://github.com/ViniciusStanula/Search-Console-API/assets/48488978/77cb04de-fb46-4350-8d45-524decd2939f)
 
-> A Streamlit web application that connects to the Google Search Console API and presents over 200,000 rows of data in charts and tables.
+Pull your Google Search Console data into a dashboard — up to 500,000 rows per query, with filters, charts, and Excel export. Built with Python and Streamlit.
 
-## 📋 Recent Changes
+The GSC interface caps you at 1,000 rows. This app uses the Search Analytics API to batch-fetch up to 500k rows across keywords, pages, or both.
 
-- **Replaced ECharts with Plotly** — Simplified charting with a lighter, more maintainable Plotly implementation.
-- **Removed deprecated Streamlit values** — Updated deprecated API calls to align with current Streamlit versions.
-- **Added daily breakdown filter** — New toggle to display table data broken down by individual days within the selected date range.
-- **Pinned dependency versions** — The `requirements.txt` now specifies exact versions for all libraries to ensure reproducible builds.
+## How to Use
 
-## ☕ How to Use
+1. Go to [search-console-api.streamlit.app](https://search-console-api.streamlit.app/)
+2. Log in with your Google account and click **Grant API access**
+3. Enter your domain or property URL exactly as it appears in GSC
+4. Pick your metric, set the date range, hit **Fetch Data ✨**
 
-1. Go to the [web application](https://search-console-api.streamlit.app/).
-2. Click **"Log in to Google Search Console"** and enter your credentials.
-3. Click **"Grant API Access"**.
-4. Choose your metrics and click **"Fetch Data ✨"**.
+## What It Does
 
-Alternatively, clone this repository and run it locally.
+- Fetches up to **500,000 rows** via batched API requests (25k per call)
+- Dimensions: Keywords, Pages, Pages per Keyword, Keywords per Page
+- Filter by URL or keyword — contains, not contains, or regex
+- Date range up to 16 months back
+- Daily breakdown mode for the table view
+- Clicks / Impressions / CTR / Position chart over time
+- Export to Excel
 
-## 🔧 Running Locally & Changing the Row Limit
+## Running Locally
 
-The app fetches up to **300,000 rows** by batching multiple 25,000-row requests to the GSC API. If your site has fewer rows, the process simply finishes earlier.
-
-To increase the limit or use your own credentials:
-
-1. Replace `CLIENT_SECRET`, `CLIENT_ID`, and `REDIRECT_URI` with your own values.
-   - Create OAuth **Web Application** credentials for the Search Console API in [Google Cloud Console](https://console.cloud.google.com/).
-   - Set `REDIRECT_URI` to your app's URL (e.g., `http://localhost:8501/` for local development).
-2. Update the row limit in the code:
-
-```python
-ROW_LIMIT = 300_000  # change to your desired value
+```bash
+pip install -r requirements.txt
+streamlit run home.py
 ```
 
-### Work in Progress
+You'll need your own OAuth credentials:
 
-The app is fully functional but still evolving — new charts and deeper analysis are planned. Feedback is welcome!
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+2. Create an **OAuth 2.0 Client ID** (Web Application) with the Search Console API enabled
+3. Add `http://localhost:8501/` as an authorized redirect URI
+4. Add your credentials to `.streamlit/secrets.toml`:
 
-### Get in Touch
+```toml
+clientId = "your-client-id"
+clientSecret = "your-client-secret"
+```
+
+5. Update `REDIRECT_URI` in `views/gsc_api.py` to `http://localhost:8501/`
+
+The row limit defaults to 500,000. Change `ROW_LIMIT` in `views/gsc_api.py` if needed.
+
+## Get in Touch
 
 <p align="left">
-  <a href="https://www.linkedin.com/in/vinicius-stanula/" target="_blank" alt="LinkedIn">
-    <img src="https://img.shields.io/badge/-Linkedin-0e76a8?style=flat-square&logo=Linkedin&logoColor=white&link=LINK-DO-SEU-LINKEDIN" />
+  <a href="https://www.linkedin.com/in/vinicius-stanula/" target="_blank">
+    <img src="https://img.shields.io/badge/-LinkedIn-0e76a8?style=flat-square&logo=Linkedin&logoColor=white" />
   </a>
 </p>

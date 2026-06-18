@@ -1,5 +1,11 @@
 body {
-    font-family: Monaco, monospace;
+    font-family: 'Inter', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[data-testid="stDataFrame"] table,
+[data-testid="stDataFrame"] td,
+[data-testid="stDataFrame"] th {
+    font-family: Monaco, 'Courier New', monospace;
 }
 
 section[data-testid='stSidebar'] {
@@ -49,13 +55,6 @@ section[data-testid='stSidebar'] {
     text-align: center;
     color: #282a36;
 }
-
-.css-15zrgzn {display: none}
-.css-eczf16 {display: none}
-.css-jn99sy {display: none}
-.css-l9grht.e1nzilvr2 {display: none}
-.css-myvzrx.e1vs0wn31 {display: none}
-.css-l9grht.e1nzilvr3 {display: none}
 
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}

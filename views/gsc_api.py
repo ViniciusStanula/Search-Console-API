@@ -65,13 +65,11 @@ FILTER_OPTIONS = ("contains", "notcontains", "includingRegex", "excludingRegex")
 ROW_LIMIT = 500_000
 BATCH_SIZE = 25_000
 CHART_COLORS = {
-    "clicks": "#8be9fd",
-    "impressions": "#ffb86c",
-    "ctr": "#50fa7b",
-    "position": "#ff79c6",
-    "bg": "#282a36",
-    "text": "#f8f8f2",
-    "grid": "#44475a",
+    "clicks": "#0ea5e9",
+    "impressions": "#f97316",
+    "ctr": "#22c55e",
+    "position": "#ec4899",
+    "grid": "rgba(128,128,128,0.2)",
 }
 
 
@@ -177,6 +175,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(show_spinner=False)
 def to_excel(df):
     output = BytesIO()
     wb = Workbook()
@@ -415,9 +414,8 @@ def plot_metrics_chart(df_grouped):
         )
 
     fig.update_layout(
-        plot_bgcolor=CHART_COLORS["bg"],
-        paper_bgcolor=CHART_COLORS["bg"],
-        font_color=CHART_COLORS["text"],
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
         height=400,
         margin=dict(l=65, r=65, t=45, b=50),
@@ -432,25 +430,27 @@ def plot_metrics_chart(df_grouped):
 
 def display_metric_cards(df):
     met1, met2, met3, met4 = st.columns(4)
+    total_clicks = df["Clicks"].sum()
+    total_impressions = df["Impressions"].sum()
+    true_ctr = (total_clicks / total_impressions * 100) if total_impressions > 0 else 0
     with met1:
-        st.metric("Clicks:", f'{df["Clicks"].sum():,}')
+        st.metric("Clicks", f'{total_clicks:,}')
     with met2:
-        st.metric("Impressions:", f'{df["Impressions"].sum():,}')
+        st.metric("Impressions", f'{total_impressions:,}')
     with met3:
-        st.metric("CTR:", f'{df["CTR"].mean() * 100:.2f}%')
+        st.metric("CTR", f'{true_ctr:.2f}%')
     with met4:
-        st.metric("Position:", f'{df["Position"].mean():.1f}')
+        st.metric("Position", f'{df["Position"].mean():.1f}')
 
 
 def excel_download_button(df, key):
-    if st.checkbox("Generate Excel", key=key):
-        excel_filename = f'API-GSC-{st.session_state.domain}.xlsx'
-        st.download_button(
-            label="📥 Download Excel",
-            data=to_excel(df),
-            file_name=excel_filename,
-            key=f"download_{key}",
-        )
+    excel_filename = f'API-GSC-{st.session_state.domain}.xlsx'
+    st.download_button(
+        label="📥 Download Excel",
+        data=to_excel(df),
+        file_name=excel_filename,
+        key=f"download_{key}",
+    )
 
 
 def _section_divider(label):
@@ -500,7 +500,9 @@ def createPage():
 
     st.markdown("----")
 
-    with st.expander("🔑 Log in to Google Search Console"):
+    not_logged_in = not st.session_state.get("my_token_received")
+    auth_label = "🔑 Google Search Console Login — ⚠️ Login Required" if not_logged_in else "🔑 Google Search Console Login — ✅ Authenticated"
+    with st.expander(auth_label, expanded=not_logged_in):
         link_style = (
             "text-decoration: none; color: #FFF; padding: 8px 20px; "
             "border-radius: 4px; background-color: #DD4B39; font-size: 16px;"
@@ -508,15 +510,12 @@ def createPage():
         st.markdown("1 - Log in to your Google account:")
         st.markdown(
             f'<a href="{AUTH_HREF}" target="_blank" style="{link_style}">'
-            f'<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png" '
-            f'alt="Google" style="vertical-align: middle; margin-right: 10px;">'
             f"Login With Google</a>",
             unsafe_allow_html=True,
         )
         st.markdown("2 - Click the Button to grant API access:")
         st.button(label="Grant API access", on_click=button_callback)
-        st.markdown("This is your OAuth token:")
-        st.text_input("", key="my_token_input", label_visibility="collapsed")
+        st.text_input("OAuth token:", key="my_token_input")
 
     c1, c2 = st.columns([1.2, 4])
 
@@ -537,10 +536,8 @@ def createPage():
         )
         dimensions = METRICS_TO_DIMENSIONS[metric_choice]
 
-        daily_breakdown = st.radio(
-            "Daily Breakdown:",
-            ("Off", "On"),
-            horizontal=True,
+        daily_breakdown = st.checkbox(
+            "Daily Breakdown",
             help="When enabled, the Table tab will show data broken down by individual days within the selected date range.",
         )
 
@@ -556,15 +553,15 @@ def createPage():
 
         if use_url_filter:
             with c1_1:
-                url_filter = st.selectbox("URL", FILTER_OPTIONS)
+                url_filter = st.selectbox("URL filter type", FILTER_OPTIONS)
             with c1_2:
-                url_operator = st.text_input("Filter", key="URL_Operator")
+                url_operator = st.text_input("URL value", key="URL_Operator")
 
         if use_keyword_filter:
             with c1_1:
-                keyword_filter = st.selectbox("Keywords", FILTER_OPTIONS)
+                keyword_filter = st.selectbox("Keyword filter type", FILTER_OPTIONS)
             with c1_2:
-                keyword_operator = st.text_input("Filter", key="Keyword_Operator")
+                keyword_operator = st.text_input("Keyword value", key="Keyword_Operator")
 
         _section_divider("Time range")
         day = st.date_input(
@@ -584,7 +581,7 @@ def createPage():
         keyword_operator=keyword_operator,
     )
     date_range = (day[0].strftime("%Y-%m-%d"), day[1].strftime("%Y-%m-%d"))
-    use_daily = daily_breakdown == "On"
+    use_daily = daily_breakdown
 
     with c2:
         tab_date, tab_table = st.tabs(["📅 Date", "📃 Table"])
@@ -593,7 +590,11 @@ def createPage():
             if button:
                 try:
                     df_date = get_data_date(property_url, *date_range, **filter_kwargs)
-                    st.session_state.dataframeData = df_date
+                    if df_date.empty:
+                        st.warning("No data returned. Check the property URL, date range, or filters.")
+                        st.session_state.dataframeData = None
+                    else:
+                        st.session_state.dataframeData = df_date
                 except ValueError as e:
                     if "Please supply either code or authorization_response parameters" in str(e):
                         st.error("⚠️ Please grant API access. (If you are seeing a chart, it is a cached version)")
@@ -615,15 +616,21 @@ def createPage():
                         excel_download_button(df_grouped, key="date")
                 except AttributeError:
                     pass
+            else:
+                st.info("Fill in the settings on the left and click **Fetch Data** to load metrics.")
 
         with tab_table:
             if button:
                 try:
                     df = get_data(property_url, dimensions, *date_range, **filter_kwargs)
-                    st.session_state.dataframe = df
-                    if use_daily:
-                        df_daily = get_data_daily(property_url, dimensions, *date_range, **filter_kwargs)
-                        st.session_state.dataframe_daily = df_daily
+                    if df.empty:
+                        st.warning("No data returned. Check the property URL, date range, or filters.")
+                        st.session_state.dataframe = None
+                    else:
+                        st.session_state.dataframe = df
+                        if use_daily:
+                            df_daily = get_data_daily(property_url, dimensions, *date_range, **filter_kwargs)
+                            st.session_state.dataframe_daily = df_daily if not df_daily.empty else None
                 except ValueError as e:
                     if "Please supply either code or authorization_response parameters" in str(e):
                         st.error("⚠️ Please grant API access. (If you are seeing a chart, it is a cached version)")
@@ -657,5 +664,7 @@ def createPage():
                         st.warning("Please supply either code or authorization_response parameters")
                     else:
                         raise
+            else:
+                st.info("Fill in the settings on the left and click **Fetch Data** to load data.")
 
     return True
