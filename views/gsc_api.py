@@ -11,6 +11,7 @@ import requests as rq
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from googleapiclient import discovery
+from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from pyexcelerate import Workbook
 from google_auth_oauthlib.flow import Flow
@@ -480,6 +481,23 @@ def init_session_state():
             st.session_state[key] = value
 
 
+def _handle_http_error(e, property_url):
+    status = e.resp.status
+    if status in (400, 403):
+        st.error(
+            f"GSC returned a {status} for `{property_url}`.\n\n"
+            "This usually means the URL format doesn't match how the property is registered in GSC. "
+            "Check your property in Search Console and try one of these formats:\n\n"
+            "- `https://www.example.com/` (URL-prefix property)\n"
+            "- `example.com` (domain property, gets converted to `sc-domain:example.com`)\n\n"
+            "Copy it exactly as it appears in GSC."
+        )
+    elif status == 401:
+        st.error("Authentication expired. Log in again.")
+    else:
+        st.error(f"GSC API error {status}. Check your property URL and try again.")
+
+
 def createPage():
     col_icon, col_title = st.columns([0.06, 0.99])
     with col_icon:
@@ -595,6 +613,8 @@ def createPage():
                         st.session_state.dataframeData = None
                     else:
                         st.session_state.dataframeData = df_date
+                except HttpError as e:
+                    _handle_http_error(e, property_url)
                 except ValueError as e:
                     if "Please supply either code or authorization_response parameters" in str(e):
                         st.error("⚠️ Please grant API access. (If you are seeing a chart, it is a cached version)")
@@ -631,6 +651,8 @@ def createPage():
                         if use_daily:
                             df_daily = get_data_daily(property_url, dimensions, *date_range, **filter_kwargs)
                             st.session_state.dataframe_daily = df_daily if not df_daily.empty else None
+                except HttpError as e:
+                    _handle_http_error(e, property_url)
                 except ValueError as e:
                     if "Please supply either code or authorization_response parameters" in str(e):
                         st.error("⚠️ Please grant API access. (If you are seeing a chart, it is a cached version)")
