@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import pandas as pd
 from datetime import date as date_today
 from dateutil.relativedelta import relativedelta
@@ -14,7 +13,6 @@ from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from pyexcelerate import Workbook
-from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from pandas.api.types import (
     is_datetime64_any_dtype,
@@ -41,19 +39,6 @@ AUTH_HREF = (
     f"&scope={SCOPES[0]}"
     "&access_type=offline&prompt=consent"
 )
-OAUTH_CLIENT_CONFIG = {
-    "installed": {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "redirect_uris": [],
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": TOKEN_URI,
-    }
-}
-
-flow = Flow.from_client_config(OAUTH_CLIENT_CONFIG, scopes=SCOPES, redirect_uri=REDIRECT_URI)
-flow.code_verifier = None
-auth_url, _ = flow.authorization_url(prompt="consent")
 
 METRICS_TO_DIMENSIONS = {
     "Keywords": ["query"],
@@ -96,6 +81,7 @@ def button_callback():
         st.session_state.google_creds = {
             "access_token": token_data["access_token"],
             "refresh_token": token_data.get("refresh_token"),
+            "expires_at": time.time() + token_data.get("expires_in", 3600) - 60,
         }
     except (KeyError, ValueError):
         st.error("⚠️ The parameter 'code' was not found in the URL. Please log in.")
@@ -126,10 +112,11 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
             is_ctr_column = column == "CTR" and is_numeric_dtype(df[column])
 
             if isinstance(df[column].dtype, pd.CategoricalDtype) or df[column].nunique() < 10:
+                unique_vals = df[column].unique()
                 user_cat_input = right.multiselect(
                     f"Values for: {column}",
-                    df[column].unique(),
-                    default=list(df[column].unique()),
+                    unique_vals,
+                    default=list(unique_vals),
                 )
                 df = df[df[column].isin(user_cat_input)]
 
@@ -180,12 +167,8 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 def to_excel(df):
     output = BytesIO()
     wb = Workbook()
-    ws = wb.new_sheet("GSC-API-Data")
-    columns = df.columns.tolist()
-    data = [columns] + df.values.tolist()
-    for row_index, row_data in enumerate(data, start=1):
-        for col_index, cell_value in enumerate(row_data, start=1):
-            ws[row_index][col_index].value = cell_value
+    data = [df.columns.tolist()] + df.values.tolist()
+    wb.new_sheet("GSC-API-Data", data=data)
     wb.save(output)
     return output.getvalue()
 
@@ -225,17 +208,15 @@ def _run_progress_bar(label="Retrieving Metrics. Please Wait. 🐈"):
 
 def _rows_to_dataframe(data, dimensions):
     key_names = [DIMENSION_KEY_MAP.get(d, d.capitalize()) for d in dimensions]
-    records = []
-    for row in data:
-        record = {name: row["keys"][i] for i, name in enumerate(key_names)}
-        record.update({
-            "Clicks": row["clicks"],
-            "Impressions": row["impressions"],
-            "CTR": row["ctr"],
-            "Position": row["position"],
-        })
-        records.append(record)
-    return pd.DataFrame(records)
+    if not data:
+        return pd.DataFrame(columns=key_names + ["Clicks", "Impressions", "CTR", "Position"])
+    return pd.DataFrame({
+        **{name: [row["keys"][i] for row in data] for i, name in enumerate(key_names)},
+        "Clicks":      [row["clicks"]      for row in data],
+        "Impressions": [row["impressions"] for row in data],
+        "CTR":         [row["ctr"]         for row in data],
+        "Position":    [row["position"]    for row in data],
+    })
 
 
 def _make_creds_key(creds_dict):
@@ -248,6 +229,8 @@ def _ensure_fresh_credentials():
     creds_dict = st.session_state.get("google_creds")
     if not creds_dict or not creds_dict.get("refresh_token"):
         return
+    if time.time() < creds_dict.get("expires_at", 0):
+        return
 
     creds = Credentials(
         token=creds_dict["access_token"],
@@ -258,11 +241,11 @@ def _ensure_fresh_credentials():
     )
 
     try:
-        # No expiry timestamp available, so always force a refresh to guarantee freshness
         creds.refresh(GoogleAuthRequest())
         st.session_state.google_creds = {
             "access_token": creds.token,
             "refresh_token": creds.refresh_token,
+            "expires_at": time.time() + 3540,
         }
     except Exception:
         # Leave stale credentials in place; the API call will surface the error
@@ -310,7 +293,7 @@ def _fetch_gsc_data(
     data = []
     start_row = 0
 
-    while start_row == 0 or (start_row % BATCH_SIZE == 0 and start_row < row_limit):
+    while True:
         request_body = {
             "startDate": start_date,
             "endDate": end_date,
@@ -337,9 +320,12 @@ def _fetch_gsc_data(
                 raise
 
         rows = response.get("rows", [])
-        start_row += len(rows)
         data.extend(rows)
+        start_row += len(rows)
         update_progress(start_row, row_limit)
+
+        if len(rows) < BATCH_SIZE or start_row >= row_limit:
+            break
 
     finish_progress()
     return data
@@ -472,8 +458,6 @@ def init_session_state():
         "domain": None,
         "dataframeData": None,
         "dataframe_daily": None,
-        "clicked": False,
-        "auth_code": "",
         "google_creds": None,
     }
     for key, value in defaults.items():
@@ -513,13 +497,10 @@ def createPage():
 
     init_session_state()
 
-    def click_button():
-        st.session_state.clicked = True
-
     st.markdown("----")
 
     not_logged_in = not st.session_state.get("my_token_received")
-    auth_label = "🔑 Google Search Console Login — ⚠️ Login Required" if not_logged_in else "🔑 Google Search Console Login — ✅ Authenticated"
+    auth_label = "🔑 Google Search Console Login (⚠️ Login Required)" if not_logged_in else "🔑 Google Search Console Login (✅ Authenticated)"
     with st.expander(auth_label, expanded=not_logged_in):
         link_style = (
             "text-decoration: none; color: #FFF; padding: 8px 20px; "
@@ -590,7 +571,7 @@ def createPage():
             format="DD/MM/YYYY",
             help="The available time range is the same as what is available in Google Search Console. DD/MM/YYYY Format",
         )
-        button = st.button("Fetch Data ✨", on_click=click_button)
+        button = st.button("Fetch Data ✨")
 
     filter_kwargs = dict(
         url_filter=url_filter,
@@ -598,6 +579,9 @@ def createPage():
         keyword_filter=keyword_filter,
         keyword_operator=keyword_operator,
     )
+    if len(day) < 2:
+        st.warning("Please select both a start and end date.")
+        st.stop()
     date_range = (day[0].strftime("%Y-%m-%d"), day[1].strftime("%Y-%m-%d"))
     use_daily = daily_breakdown
 
@@ -631,6 +615,7 @@ def createPage():
                         "Position": "mean",
                     }).reset_index()
                     display_metric_cards(df_date)
+                    st.caption(f"{len(df_date):,} rows")
                     with st.container():
                         plot_metrics_chart(df_grouped)
                         excel_download_button(df_grouped, key="date")
@@ -671,8 +656,17 @@ def createPage():
                 try:
                     filtered_df = filter_dataframe(active_df)
                     display_metric_cards(filtered_df)
+                    st.caption(f"{len(filtered_df):,} rows")
+                    display_df = filtered_df.copy()
+                    display_df["CTR"] = display_df["CTR"] * 100
                     st.dataframe(
-                        filtered_df.assign(CTR=lambda x: x["CTR"].apply(lambda v: f"{v * 100:.2f}%")),
+                        display_df,
+                        column_config={
+                            "CTR": st.column_config.NumberColumn("CTR", format="%.2f%%"),
+                            "Clicks": st.column_config.NumberColumn("Clicks", format="%d"),
+                            "Impressions": st.column_config.NumberColumn("Impressions", format="%d"),
+                            "Position": st.column_config.NumberColumn("Position", format="%.1f"),
+                        },
                         use_container_width=True,
                     )
                     excel_download_button(filtered_df, key="table")
