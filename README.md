@@ -1,6 +1,6 @@
 # Google Search Console API Bulk Data Exporter
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://search-console-api.streamlit.app/)
+<a href="https://search-console-api.streamlit.app/" target="_blank"><img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Open the live Streamlit app"></a>
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
@@ -9,6 +9,8 @@
 Pull your Google Search Console data into a dashboard, up to 500,000 rows per query, with filters, charts, and Excel export. Built with Python and Streamlit.
 
 The Google Search Console interface caps you at 1,000 rows. If you need to download all your Search Console data or export more than 1,000 rows, this app uses the Search Analytics API to batch-fetch up to 500,000 rows across keywords, pages, or both. Think of it as a free GSC bulk export tool.
+
+Useful for SEO reporting, keyword research, and analyzing large sites that exceed the standard export limit.
 
 ## How to Use
 
@@ -20,7 +22,7 @@ The Google Search Console interface caps you at 1,000 rows. If you need to downl
 ## What It Does
 
 - Fetches up to **500,000 rows** via batched API requests (25k per call)
-- Dimensions: Keywords, Pages, Pages per Keyword, Keywords per Page
+- Dimensions: Keywords (queries), Pages, Pages per Keyword, Keywords per Page
 - Filter by URL or keyword (contains, not contains, or regex)
 - Date range up to 16 months back
 - Daily breakdown mode for the table view
